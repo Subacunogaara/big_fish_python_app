@@ -31,84 +31,43 @@ def main(page: ft.Page):
 
     '''Check the single dashboard + checking function'''
 
-    user_data = ft.TextField(label='Enter dashboard id', width=170)
+    user_dashboard_data = ft.TextField(label='Enter dashboard id', width=170)
+    user_look_data = ft.TextField(label='Enter look id', width=120)
     result_list_links = ft.ListView(expand=True, spacing=5)
 
     def open_url(e):
         page.launch_url(e.data)
 
-    def single_check(id, file=False):
+    def single_dashboard_check(id, file=False):
         if file == False:
-            id = user_data.value
-        look = False
-
+            id = user_dashboard_data.value
         try:
-            try:
-                board = sdk.dashboard(dashboard_id=id)
-            except:
-                board = False
-                try:
-                    look = sdk.look(look_id=id)
-                except:
-                    result_list_links.controls.append(ft.Row([
-                        ft.Markdown(
-                            f"[https://bigfishgames.gw1.cloud.looker.com/dashboards/{id}](https://bigfishgames.gw1.cloud.looker.com/dashboards/{id})",
-                            on_tap_link=open_url,
-                            expand=False),
-                        ft.Icon(ft.icons.ERROR, color='red')
-                    ], alignment=ft.MainAxisAlignment.START)
-                    )
+            board = sdk.dashboard(dashboard_id=id)
             error_words = ('error', 'Error', 'trouble', 'Trouble')
-            if board:
-                for tile in board.dashboard_elements:
-                    query = tile.query
-                    if query and query.id:
-                        query_response = sdk.run_query(query_id=query.id, result_format='json')
-                        if any(word in query_response for word in error_words):
-                            result_list_links.controls.append(ft.Row([
-                                ft.Markdown(
-                                    f"[https://bigfishgames.gw1.cloud.looker.com/dashboards/{id}](https://bigfishgames.gw1.cloud.looker.com/dashboards/{id})",
-                                    on_tap_link=open_url,
-                                    expand=False),
-                                ft.Icon(ft.icons.ERROR, color='red'),
-                                ft.Text(f'{board.title}')], alignment=ft.MainAxisAlignment.START))
-                            page.update()
-                            break
-                else:
-                    result_list_links.controls.append(ft.Row([
-                        ft.Markdown(
-                            f"[https://bigfishgames.gw1.cloud.looker.com/dashboards/{id}](https://bigfishgames.gw1.cloud.looker.com/dashboards/{id})",
-                            on_tap_link=open_url,
-                            expand=False),
-                        ft.Icon(ft.icons.DONE, color='green'),
-                        ft.Text(f'{board.title}')], alignment=ft.MainAxisAlignment.START))
-                    page.update()
-            else:
-
-                query = look.query
+            for tile in board.dashboard_elements:
+                query = tile.query
                 if query and query.id:
                     query_response = sdk.run_query(query_id=query.id, result_format='json')
                     if any(word in query_response for word in error_words):
                         result_list_links.controls.append(ft.Row([
                             ft.Markdown(
-                                f"[https://bigfishgames.gw1.cloud.looker.com/looks/{id}](https://bigfishgames.gw1.cloud.looker.com/looks/{id})",
+                                f"[https://bigfishgames.gw1.cloud.looker.com/dashboards/{id}](https://bigfishgames.gw1.cloud.looker.com/dashboards/{id})",
                                 on_tap_link=open_url,
                                 expand=False),
                             ft.Icon(ft.icons.ERROR, color='red'),
-                            ft.Text(f'{look.title}')], alignment=ft.MainAxisAlignment.START))
+                            ft.Text(f'{board.title}')], alignment=ft.MainAxisAlignment.START))
                         page.update()
-                    else:
-                        result_list_links.controls.append(ft.Row([
-                            ft.Markdown(
-                                f"[https://bigfishgames.gw1.cloud.looker.com/looks/{id}](https://bigfishgames.gw1.cloud.looker.com/looks/{id})",
-                                on_tap_link=open_url,
-                                expand=False),
-                            ft.Icon(ft.icons.DONE, color='green'),
-                            ft.Text(f'{look.title}')], alignment=ft.MainAxisAlignment.START))
-                        page.update()
-
-
-        except Exception:
+                        break
+            else:
+                result_list_links.controls.append(ft.Row([
+                    ft.Markdown(
+                        f"[https://bigfishgames.gw1.cloud.looker.com/dashboards/{id}](https://bigfishgames.gw1.cloud.looker.com/dashboards/{id})",
+                        on_tap_link=open_url,
+                        expand=False),
+                    ft.Icon(ft.icons.DONE, color='green'),
+                    ft.Text(f'{board.title}')], alignment=ft.MainAxisAlignment.START))
+                page.update()
+        except:
             result_list_links.controls.append(ft.Row([
                 ft.Markdown(
                     f"[https://bigfishgames.gw1.cloud.looker.com/dashboards/{id}](https://bigfishgames.gw1.cloud.looker.com/dashboards/{id})",
@@ -119,45 +78,85 @@ def main(page: ft.Page):
             )
             page.update()
 
-    button_for_single_dash = ft.ElevatedButton(text='Check dashboard', height=50, on_click=single_check)
+
+    def single_look_check(id, file=False):
+        if file == False:
+            id = user_look_data.value
+        try:
+            look = sdk.look(look_id=id)
+            error_words = ('error', 'Error', 'trouble', 'Trouble')
+            query = look.query
+            if query and query.id:
+                query_response = sdk.run_query(query_id=query.id, result_format='json')
+                if any(word in query_response for word in error_words):
+                    result_list_links.controls.append(ft.Row([
+                        ft.Markdown(
+                            f"[https://bigfishgames.gw1.cloud.looker.com/looks/{id}](https://bigfishgames.gw1.cloud.looker.com/looks/{id})",
+                            on_tap_link=open_url,
+                            expand=False),
+                        ft.Icon(ft.icons.ERROR, color='red'),
+                        ft.Text(f'{look.title}')], alignment=ft.MainAxisAlignment.START))
+                    page.update()
+                else:
+                    result_list_links.controls.append(ft.Row([
+                        ft.Markdown(
+                            f"[https://bigfishgames.gw1.cloud.looker.com/looks/{id}](https://bigfishgames.gw1.cloud.looker.com/looks/{id})",
+                            on_tap_link=open_url,
+                            expand=False),
+                        ft.Icon(ft.icons.DONE, color='green'),
+                        ft.Text(f'{look.title}')], alignment=ft.MainAxisAlignment.START))
+                    page.update()
+        except:
+            result_list_links.controls.append(ft.Row([
+                ft.Markdown(
+                    f"[https://bigfishgames.gw1.cloud.looker.com/look/{id}](https://bigfishgames.gw1.cloud.looker.com/look/{id})",
+                    on_tap_link=open_url,
+                    expand=False),
+                ft.Icon(ft.icons.ERROR, color='red')
+            ], alignment=ft.MainAxisAlignment.START)
+            )
+            page.update()
+
+    button_for_single_dash = ft.ElevatedButton(text='Check dashboard', height=50, on_click=single_dashboard_check)
+    button_for_single_look = ft.ElevatedButton(text='Check look', height=50, on_click=single_look_check)
 
 
 
-    '''Check the list of dashboards from file'''
+    # '''Check the list of dashboards from file'''
 
     # file_picker = ft.FilePicker()
     # page.overlay.append(file_picker)
     # button_for_file_picker = ft.ElevatedButton("Choose file",
     #                                                 on_click=lambda _: file_picker.pick_files(allow_multiple=False))
 
-    def check_from_file(d):
-        list_of_dashboards = []
-        with open('dashboards.txt') as file:
-            for line in file:
-                list_of_dashboards.append(line.strip())
+    # def check_from_file(d):
+    #     list_of_dashboards = []
+    #     with open('dashboards.txt') as file:
+    #         for line in file:
+    #             list_of_dashboards.append(line.strip())
+    #
+    #     for id in list_of_dashboards:
+    #         single_check(id, file=True)
+    #
+    #     result_list_links.controls.append(ft.Text('DONE!'))
+    #
+    #     page.update()
+    #
+    # button_for_file = ft.ElevatedButton(text='Check all Dashboards from file', height=50, on_click=check_from_file)
 
-        for id in list_of_dashboards:
-            single_check(id, file=True)
-
-        result_list_links.controls.append(ft.Text('DONE!'))
-
-        page.update()
-
-    button_for_file = ft.ElevatedButton(text='Check all Dashboards from file', height=50, on_click=check_from_file)
-
-    def get_dashboards_in_folder(folder_id, list_of_ids):
+    def get_dashboards_in_folder(folder_id, dict_of_ids):
         dashboards = sdk.folder_dashboards(folder_id)
         for dashboard in dashboards:
-            list_of_ids.append(dashboard.id)
+            dict_of_ids['dashboards'].append(dashboard.id)
 
         looks = sdk.folder_looks(folder_id)
         for look in looks:
-            list_of_ids.append(look.id)
+            dict_of_ids['looks'].append(look.id)
 
         subfolders = sdk.folder_children(folder_id)
         for folder in subfolders:
             if 'archive' not in folder.name.lower():
-                get_dashboards_in_folder(folder.id, list_of_ids)
+                get_dashboards_in_folder(folder.id, dict_of_ids)
 
 
     '''Check the all Dashboards from Checkbox List'''
@@ -210,8 +209,12 @@ def main(page: ft.Page):
 
     def check_all_marked(y):
         pb = ft.ProgressBar(width=200)
-        third_row = ft.Row([button_for_all_dashboards_in_looker, games_selected_button, check_all_games])
-        third_row.controls.extend((pb, ft.Text('Processing...', color='blue')))
+        if len(third_row.controls) == 3:
+            third_row.controls.extend((pb, ft.Text('Processing...', color='blue')))
+        else:
+            for i in range(len(third_row.controls) - 3):
+                third_row.controls.pop()
+            third_row.controls.extend((pb, ft.Text('Processing...', color='blue')))
         page.update()
 
         folders_dict = {'Executive KPIs': '1121',
@@ -258,21 +261,28 @@ def main(page: ft.Page):
                 if game.value:
                     list_of_folders.append(folders_dict[game.label])
 
-        list_of_dashboards_and_looks = []
+        dict_of_dashboards_and_looks = {'dashboards': [], 'looks': []}
         for folder in list_of_folders:
-            get_dashboards_in_folder(folder, list_of_dashboards_and_looks)
+            get_dashboards_in_folder(folder, dict_of_dashboards_and_looks)
 
-        pb_step = round(1 / len(list_of_dashboards_and_looks), 2)
+        pb_step = round(1 / (len(dict_of_dashboards_and_looks['dashboards']) + len(dict_of_dashboards_and_looks['looks'])), 2)
         pb.value = 0
         page.update()
 
-        for id in list_of_dashboards_and_looks:
-            single_check(id, file=True)
+
+        for id in dict_of_dashboards_and_looks['dashboards']:
+            single_dashboard_check(id, file=True)
             pb.value += pb_step
             page.update()
 
-        third_row.controls = third_row.controls[:-2]
-        third_row.controls.extend((ft.Text('DONE !!!', color='greed')))
+        for id in dict_of_dashboards_and_looks['looks']:
+            single_look_check(id, file=True)
+            pb.value += pb_step
+            page.update()
+
+        for i in range(len(third_row.controls) - 3):
+            third_row.controls.pop()
+        third_row.controls.extend((ft.Text('DONE !!!', color='green'),))
         page.update()
 
     button_for_all_dashboards_in_looker = ft.ElevatedButton(text='Check all marked Dashboards', height=50, on_click=check_all_marked)
@@ -284,24 +294,30 @@ def main(page: ft.Page):
     user_data_folder = ft.TextField(label='Enter folder id', width=170)
 
     def check_from_folder(d):
-        list_of_dashboards = []
+        dict_of_dashs_and_looks = {'dashboards': [], 'looks': []}
         pb = ft.ProgressBar(width=200)
         third_row = ft.Row([button_for_all_dashboards_in_looker, games_selected_button, check_all_games])
         third_row.controls.extend((pb, ft.Text('Processing...', color='blue')))
         page.update()
 
-        get_dashboards_in_folder(user_data_folder.value, list_of_dashboards)
+        get_dashboards_in_folder(user_data_folder.value, dict_of_dashs_and_looks)
 
-        pb_step = round(1/len(list_of_dashboards), 2)
+        pb_step = round(1/(len(dict_of_dashs_and_looks['dashboards']) + len[dict_of_dashs_and_looks['looks']]), 2)
         pb.value = 0
 
-        for id in list_of_dashboards:
-            single_check(id, file=True)
+        for id in dict_of_dashs_and_looks['dashboards']:
+            single_dashboard_check(id, file=True)
             pb.value += pb_step
             page.update()
 
-        third_row.controls = third_row.controls[:-2]
-        third_row.controls.extend((ft.Text('DONE !!!', color='greed')))
+        for id in dict_of_dashs_and_looks['looks']:
+            single_look_check(id, file=True)
+            pb.value += pb_step
+            page.update()
+
+        for i in range(len(third_row.controls) - 3):
+            third_row.controls.pop()
+        third_row.controls.extend((ft.Text('DONE !!!', color='green'),))
 
         page.update()
 
@@ -312,14 +328,12 @@ def main(page: ft.Page):
     '''First page'''
 
     def clean_list(x):
-        nonlocal third_row
         result_list_links.controls = []
-        third_row = ft.Row([button_for_all_dashboards_in_looker, games_selected_button, check_all_games])
         page.update()
 
     clean_button = ft.ElevatedButton(text='Clean List', height=50, on_click=clean_list)
 
-    first_row = ft.Row([user_data, button_for_single_dash, button_for_file, clean_button])
+    first_row = ft.Row([user_dashboard_data, button_for_single_dash, user_look_data, button_for_single_look, clean_button])
     second_row = ft.Row([user_data_folder, button_for_folder, check_executive, check_ltv, check_ad_mon])
     third_row = ft.Row([button_for_all_dashboards_in_looker, games_selected_button, check_all_games])
     forth_row = ft.Row([])
