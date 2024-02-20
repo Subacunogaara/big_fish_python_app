@@ -8,7 +8,7 @@ def main(page: ft.Page):
     page.title = "BigFishGames"
     page.theme_mode = 'dark'
     page.vertical_alignment = ft.MainAxisAlignment.START
-    page.window_width = 820
+    page.window_width = 860
     page.window_height = 800
     page.scroll = "always"
 
@@ -209,12 +209,13 @@ def main(page: ft.Page):
 
     def check_all_marked(y):
         pb = ft.ProgressBar(width=200)
+        number_of_checks = ft.Text()
         if len(third_row.controls) == 3:
-            third_row.controls.extend((pb, ft.Text('Processing...', color='blue')))
+            third_row.controls.extend((number_of_checks, pb, ft.Text('Processing...', color='blue')))
         else:
             for i in range(len(third_row.controls) - 3):
                 third_row.controls.pop()
-            third_row.controls.extend((pb, ft.Text('Processing...', color='blue')))
+            third_row.controls.extend((number_of_checks, pb, ft.Text('Processing...', color='blue')))
         page.update()
 
         folders_dict = {'Executive KPIs': '1121',
@@ -265,7 +266,9 @@ def main(page: ft.Page):
         for folder in list_of_folders:
             get_dashboards_in_folder(folder, dict_of_dashboards_and_looks)
 
-        pb_step = round(1 / (len(dict_of_dashboards_and_looks['dashboards']) + len(dict_of_dashboards_and_looks['looks'])), 2)
+        number = len(dict_of_dashboards_and_looks['dashboards']) + len(dict_of_dashboards_and_looks['looks'])
+        number_of_checks.value = number
+        pb_step = 1 / number
         pb.value = 0
         page.update()
 
@@ -273,11 +276,13 @@ def main(page: ft.Page):
         for id in dict_of_dashboards_and_looks['dashboards']:
             single_dashboard_check(id, file=True)
             pb.value += pb_step
+            number_of_checks.value = int(number_of_checks.value) -1
             page.update()
 
         for id in dict_of_dashboards_and_looks['looks']:
             single_look_check(id, file=True)
             pb.value += pb_step
+            number_of_checks.value = int(number_of_checks.value) -1
             page.update()
 
         for i in range(len(third_row.controls) - 3):
@@ -357,9 +362,21 @@ def main(page: ft.Page):
 
     '''Second Page'''
 
+    def print_in_terminal(c):
+        users = sdk.all_users()
+        print(user_searching_field.value)
+        user_list = set()
+        for user in users:
+            if user_searching_field.value in user.email and not user.is_disabled:
+                user_list.add(user.email)
+        print(user_list)
+
+    user_searching_field = ft.TextField(label='User', width=200, on_change=print_in_terminal)
+
     bed = ft.Row(
         [ft.Icon(ft.icons.BED),
-         ft.Text('In developing')]
+         ft.Text('In developing'),
+         user_searching_field]
     )
 
 
